@@ -19,18 +19,21 @@ io.on('connection', (client) => {
 
         users.addUser(client.id, data.name, data.room);
 
-        client.broadcast.to(data.room).emit('userList', users.getUsersChats());
+        client.broadcast.to(data.room).emit('userList', users.getUsersChats(data.room));
+        client.broadcast.to(data.room).emit('createMessage', createMessage('Admin', `${data.name} is joined`));
 
-        callback(users.getUsersChats(data.room));
+        let usersByRoom = users.getUsersChats(data.room);
+        callback(usersByRoom);
     });
 
-    client.on('createMessage', (data) => {
+    client.on('createMessage', (data, callback) => {
 
         let user = users.getUser(client.id);
 
         let message = createMessage(user.name, data.message);
-
         client.broadcast.to(user.room).emit('createMessage', message);
+
+        callback(message);
     });
 
     //when an user left the chat
@@ -39,7 +42,7 @@ io.on('connection', (client) => {
 
         client.broadcast.to(userDeleted.room).emit('createMessage', createMessage('Admin', `${userDeleted.name} is left`));
 
-        client.broadcast.to(userDeleted.room).emit('userList', users.getUsersChats());
+        client.broadcast.to(userDeleted.room).emit('userList', users.getUsersChats(userDeleted.room));
     });
 
     //private messages

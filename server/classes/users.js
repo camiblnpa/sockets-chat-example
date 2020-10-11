@@ -24,7 +24,7 @@ class Users {
 
     getUsersChats(room) {
         let chatUsers = this.users.filter(user => user.room === room);
-        return chatUsers
+        return chatUsers;
     }
 
     deleteUser(id) {
